@@ -1,11 +1,13 @@
 import GameBoard from "./GameBoard";
-import { motion } from "framer-motion";
+import Score from "./Score";
+
 
 import { useState, useEffect } from "react";
 
 export default function GameController (){
     
     const [score, setScore] = useState(0)
+    const[highScore, setHighScore] = useState(0)
     const [image, setImage] = useState([])
     const [clicked, setClicked] = useState([])
 
@@ -44,24 +46,28 @@ const handleClick = (id) => {
     alert(`Wrong! Game over, Score: ${score}`)
     setClicked([])
   } else {
-    setScore(prev => prev + 1)
+    // better than setScore (score +1) cuz if user interacts too quick it crashed
+    // used arrow to avoid naming a function and cluttering code up
+     setScore(prev => {
+      const newScore = prev + 1
+      if (newScore > highScore) {
+        setHighScore(newScore)
+      }
+      return newScore
+    })
     setClicked(prev => [...prev, id])
     shuffleCards(image)
   }
 }
    return (<> 
-   <motion.h1
-  className="score"
-  key={score}
-  initial={{ y: -20, opacity: 0 }}
-  animate={{ y: 0, opacity: 1 }}
-  transition={{ duration: 0.3 }}
->
-  Score: {score}
-</motion.h1>
+
       <GameBoard 
           cards={image} 
           onCardsClick={handleClick} 
+   />
+   <Score
+   score = {score}
+   highScore = {highScore}
    />
    </>)
     
