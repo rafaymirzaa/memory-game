@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
 export default function GameController (){
-
+    
     const [score, setScore] = useState(0)
     const [image, setImage] = useState([])
     const [clicked, setClicked] = useState([])
