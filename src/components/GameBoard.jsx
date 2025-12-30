@@ -1,17 +1,17 @@
 
 export default function GameBoard({cards, onCardsClick}){
-   return <>
+   return (<>
    <div className="game-board">
     {cards.map(cards => (
-        <image
+        <img
 
-        key={card.id}
-        src={card.image}
-        alt={card.name}
-        onClick={() => onCardClick(card.id)}
-        
+        key={cards.id}
+        src={cards.image}
+        alt={cards.name}
+        onClick={() => onCardsClick(cards.id)}
+
         />
     ))}
    </div>
-   </>
+   </>)
 }
