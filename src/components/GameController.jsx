@@ -4,7 +4,7 @@ import Score from "./Score";
 
 import { useState, useEffect } from "react";
 
-export default function GameController (){
+export default function GameController ({playerName}){
     
     const [score, setScore] = useState(0)
     const[highScore, setHighScore] = useState(0)
@@ -18,7 +18,7 @@ export default function GameController (){
         const data = await res.json()
        //console.log (data.results[0].id)
         const imageTile = data.results
-        .slice(0, 9).filter((f,index)=>index !== 5)
+        .slice(0, 9).filter((f,index)=>index !== 5) // get rids of any specific image u want
         .map((char) => ({
         id: char.id,
         image: char.image
@@ -59,16 +59,15 @@ const handleClick = (id) => {
     shuffleCards(image)
   }
 }
-   return (<> 
-
+    return (<> 
       <GameBoard 
           cards={image} 
           onCardsClick={handleClick} 
-   />
-   <Score
-   score = {score}
-   highScore = {highScore}
-   />
+      />
+      <Score
+        score={score}
+        highScore={highScore}
+        playerName={playerName}
+      />
    </>)
-    
 }

@@ -27,10 +27,22 @@ body {
   text-align: center;
 }
 
+.score-container {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  pointer-events: none;
+}
+
 .score {
-  font-size: 2.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  margin-bottom: 2rem;
+  margin: 0;
   letter-spacing: 1px;
   text-shadow: 0 0 20px var(--glow);
 }
@@ -73,10 +85,80 @@ body {
     0 15px 40px rgba(0,0,0,0.7);
 }
 
-
-
 @media (max-width: 600px) {
   .game-board {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+/* Welcome Card */
+.welcome-card {
+  width: min(420px, 90vw);
+  padding: 2.5rem;
+  text-align: center;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.06),
+    rgba(255,255,255,0.02)
+  );
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.6),
+    inset 0 0 30px rgba(255,255,255,0.03);
+}
+
+.welcome-card h1 {
+  font-size: 2.4rem;
+  margin-bottom: 1.8rem;
+  font-weight: 700;
+  text-shadow: 0 0 18px var(--glow);
+}
+
+/* Input */
+.welcome-card input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: white;
+  font-size: 1rem;
+  outline: none;
+  margin-bottom: 1rem;
+}
+
+.welcome-card input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Error */
+.error {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Button */
+.welcome-card button {
+  width: 100%;
+  padding: 0.9rem;
+  border-radius: 14px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #0b0f19;
+  background: linear-gradient(
+    135deg,
+    #3fffd9,
+    #2ec4ff
+  );
+  box-shadow: 0 0 25px var(--glow);
+  transition: box-shadow 0.3s ease;
+}
+
+.welcome-card button:hover {
+  box-shadow: 0 0 35px var(--glow);
 }
