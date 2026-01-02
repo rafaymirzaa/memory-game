@@ -67,7 +67,8 @@ const handleClick = (id) => {
       <Score
         score={score}
         highScore={highScore}
-        playerName={playerName}
+        playerName={playerName} // can cause a crash ...
+        // can help maintain name across diff states can crash idk 
       />
    </>)
 }
