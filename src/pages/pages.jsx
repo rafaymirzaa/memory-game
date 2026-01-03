@@ -1,6 +1,7 @@
 import Welcome from "./Welcome";
 import Game from "./Game";
 import App from "../App";
+import GameOver from "./GameOver";
 
 const pages = [
     {
@@ -8,7 +9,8 @@ const pages = [
         element: <App/>,
         children: [
             {index: true, element: <Welcome/>},
-            { path: "game", element: <Game /> },
+            {path: "game", element: <Game /> },
+            {path:"gameover", element:<GameOver/>}
         ]
 
     }
