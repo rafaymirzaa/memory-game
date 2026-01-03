@@ -5,7 +5,7 @@ export default function Game() {
   const { playerName } = useOutletContext();
 
   if (!playerName) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/" replace />; // handles a bad url
   }
 
   return (
