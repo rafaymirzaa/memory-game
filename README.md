@@ -1,4 +1,4 @@
-# Memory Game - Multiplayer Edition
+# Multiplayer Memory Game 
 
 A real-time multiplayer memory card game built with React, Node.js, Socket.io, and MongoDB.
 
