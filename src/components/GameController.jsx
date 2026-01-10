@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 
 const API_URL = 'http://127.0.0.1:5000';
 
-export default function GameController({ playerName }) {
+export default function GameController({ playerName, socket }) {
   const navigate = useNavigate();
 
   const [score, setScore] = useState(0);
@@ -21,6 +21,15 @@ export default function GameController({ playerName }) {
         if (res.ok) {
           const data = await res.json();
           setHighScore(data.highScore);
+          
+          // Update socket with initial high score
+          if (socket) {
+            socket.emit('score:update', {
+              playerName,
+              score: 0,
+              highScore: data.highScore
+            });
+          }
         }
       } catch (error) {
         console.log('No existing score found');
@@ -30,9 +39,8 @@ export default function GameController({ playerName }) {
     if (playerName) {
       fetchPlayerScore();
     }
-  }, [playerName]);
+  }, [playerName, socket]);
 
- 
   useEffect(() => {
     async function fetchCard() {
       const res = await fetch('https://rickandmortyapi.com/api/character');
@@ -49,7 +57,18 @@ export default function GameController({ playerName }) {
     fetchCard();
   }, []);
 
-  //  score to database
+  // Update socket whenever score changes
+  useEffect(() => {
+    if (socket && playerName) {
+      socket.emit('score:update', {
+        playerName,
+        score,
+        highScore
+      });
+    }
+  }, [score, highScore, socket, playerName]);
+
+  // save score to database
   async function saveScore(finalScore, finalHighScore) {
     try {
       await fetch(`${API_URL}/scores`, {
@@ -81,7 +100,7 @@ export default function GameController({ playerName }) {
 
   const handleClick = (id) => {
     if (clicked.includes(id)) {
-      // Save score before navigating
+      // save score before navigating
       saveScore(score, highScore);
       
       navigate('/gameover', {
@@ -100,8 +119,7 @@ export default function GameController({ playerName }) {
         const newScore = prev + 1;
         if (newScore > highScore) {
           setHighScore(newScore);
-          // Save new high score
-          saveScore(newScore, highScore);
+          saveScore(newScore, newScore);
         }
         return newScore;
       });

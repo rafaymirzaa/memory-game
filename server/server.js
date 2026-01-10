@@ -2,10 +2,19 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173", // adjust to your frontend URL
+    methods: ["GET", "POST"]
+  }
+});
 
 // middleware
 app.use(cors());
@@ -40,14 +49,77 @@ mongoose
   .connect(MONGO_URI)
   .then(() => {
     console.log('MongoDB connected');
-    app.listen(PORT, '127.0.0.1', () => {
+    httpServer.listen(PORT, '127.0.0.1', () => {
       console.log(`Server running on http://127.0.0.1:${PORT}`);
     });
   })
   .catch((err) => console.error('MongoDB connection error:', err));
-// endpoints for the app
 
-//  all scores
+// socket.io 
+const activePlayers = new Map(); // store active players
+
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('player:join', (playerName) => {
+    activePlayers.set(socket.id, { 
+      playerName, 
+      score: 0, 
+      highScore: 0 
+    });
+    
+    // broadcasting not emitting
+    io.emit('players:update', Array.from(activePlayers.values()));
+    
+    //   message about new player
+    io.emit('chat:message', {
+      playerName: 'System',
+      message: `${playerName} joined the game!`,
+      timestamp: Date.now()
+    });
+  });
+
+  //  chat messages
+  socket.on('chat:send', ({ playerName, message }) => {
+    io.emit('chat:message', {
+      playerName,
+      message,
+      timestamp: Date.now()
+    });
+  });
+
+  //  score updates
+  socket.on('score:update', ({ playerName, score, highScore }) => {
+    const player = activePlayers.get(socket.id);
+    if (player) {
+      player.score = score;
+      player.highScore = highScore;
+      activePlayers.set(socket.id, player);
+      
+      //  updated scores to all clients
+      io.emit('players:update', Array.from(activePlayers.values()));
+    }
+  });
+
+  //  disconnects
+  socket.on('disconnect', () => {
+    const player = activePlayers.get(socket.id);
+    if (player) {
+      io.emit('chat:message', {
+        playerName: 'System',
+        message: `${player.playerName} left the game.`,
+        timestamp: Date.now()
+      });
+      activePlayers.delete(socket.id);
+      io.emit('players:update', Array.from(activePlayers.values()));
+    }
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+// REST API endpoints for the app
+
+// all scores
 app.get('/scores', async (req, res) => {
   try {
     const scores = await Score.find().sort({ highScore: -1, createdAt: -1 }).limit(10);
@@ -57,7 +129,7 @@ app.get('/scores', async (req, res) => {
   }
 });
 
-//  score by player name
+// score by player name
 app.get('/scores/:playerName', async (req, res) => {
   try {
     const score = await Score.findOne({ playerName: req.params.playerName });
