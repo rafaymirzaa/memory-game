@@ -6,13 +6,13 @@ export default function Multiplayer({ playerName, socket })
   const [players, setPlayers] = useState([]);
   const [hasPlayer2, setHasPlayer2] = useState(false);
 
-  // Listen for player updates
+  // player updates
   useEffect(() => {
     if (!socket) return;
 
     socket.on('players:update', (updatedPlayers) => {
       setPlayers(updatedPlayers);
-      // Check if there are 2 players
+      // can be scaled to any number of players
       setHasPlayer2(updatedPlayers.length >= 2);
     });
 
@@ -21,7 +21,7 @@ export default function Multiplayer({ playerName, socket })
     };
   }, [socket]);
 
-  // Find current player and other player
+  //  current player and other player
   const currentPlayer = players.find(p => p.playerName === playerName);
   const otherPlayers = players.filter(p => p.playerName !== playerName);
   const player2Name = otherPlayers.length > 0 ? otherPlayers[0].playerName : null;
@@ -46,7 +46,7 @@ export default function Multiplayer({ playerName, socket })
           />
         ) : (
           <div className="no-player-2-message">
-            <p>No Player 2 - You are alone</p>
+            <p>No other player, You are alone</p>
           </div>
         )}
       </div>

@@ -23,7 +23,7 @@ export default function GameController({ playerName, socket, isPlayer1 = true, d
           const data = await res.json();
           setHighScore(data.highScore);
           
-          // Update socket with initial high score
+          //  socket with initial high score
           if (socket) {
             socket.emit('score:update', {
               playerName,
@@ -58,7 +58,7 @@ export default function GameController({ playerName, socket, isPlayer1 = true, d
     fetchCard();
   }, []);
 
-  // Update socket whenever score changes
+  //  updated when score changes
   useEffect(() => {
     if (socket && playerName) {
       socket.emit('score:update', {
@@ -69,12 +69,11 @@ export default function GameController({ playerName, socket, isPlayer1 = true, d
     }
   }, [score, highScore, socket, playerName]);
 
-  // Listen for game state updates from other player (only if this is player 2 view)
+  // for game state updates from other player (only if this is player 2 view)
   useEffect(() => {
     if (!socket || isPlayer1 || disabled) return;
 
     const handleGameStateUpdate = (data) => {
-      // Only update if this data is for the player we're displaying
       if (data.playerName === playerName && !isPlayer1) {
         if (data.cards) setImage(data.cards);
         if (data.clickedCards) setClicked(data.clickedCards);
