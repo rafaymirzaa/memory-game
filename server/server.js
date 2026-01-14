@@ -101,6 +101,28 @@ io.on('connection', (socket) => {
     }
   });
 
+  // card click - when a player clicks a card, broadcast to other players
+  socket.on('game:cardClick', ({ playerName, cardId, score, clickedCards }) => {
+    // broadcast to all other players (not the sender)
+    socket.broadcast.emit('game:cardClick', {
+      playerName,
+      cardId,
+      score,
+      clickedCards
+    });
+  });
+
+  // game state sync - when a player's game state changes
+  socket.on('game:stateUpdate', ({ playerName, cards, clickedCards, score }) => {
+    // broadcast to all other players
+    socket.broadcast.emit('game:stateUpdate', {
+      playerName,
+      cards,
+      clickedCards,
+      score
+    });
+  });
+
   //  disconnects
   socket.on('disconnect', () => {
     const player = activePlayers.get(socket.id);

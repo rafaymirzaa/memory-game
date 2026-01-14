@@ -5,14 +5,15 @@ import { useState, useEffect } from "react";
 
 const API_URL = 'http://127.0.0.1:5000';
 
-export default function GameController({ playerName, socket }) {
+export default function GameController({ playerName, socket, isPlayer1 = true, disabled = false }) {
   const navigate = useNavigate();
-
+  // game states
+ 
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [image, setImage] = useState([]);
   const [clicked, setClicked] = useState([]);
-
+ 
   // fetch player's existing high score on mount
   useEffect(() => {
     async function fetchPlayerScore() {
@@ -68,6 +69,26 @@ export default function GameController({ playerName, socket }) {
     }
   }, [score, highScore, socket, playerName]);
 
+  // Listen for game state updates from other player (only if this is player 2 view)
+  useEffect(() => {
+    if (!socket || isPlayer1 || disabled) return;
+
+    const handleGameStateUpdate = (data) => {
+      // Only update if this data is for the player we're displaying
+      if (data.playerName === playerName && !isPlayer1) {
+        if (data.cards) setImage(data.cards);
+        if (data.clickedCards) setClicked(data.clickedCards);
+        if (data.score !== undefined) setScore(data.score);
+      }
+    };
+
+    socket.on('game:stateUpdate', handleGameStateUpdate);
+
+    return () => {
+      socket.off('game:stateUpdate', handleGameStateUpdate);
+    };
+  }, [socket, playerName, isPlayer1, disabled]);
+
   // save score to database
   async function saveScore(finalScore, finalHighScore) {
     try {
@@ -99,6 +120,12 @@ export default function GameController({ playerName, socket }) {
   }
 
   const handleClick = (id) => {
+    if (disabled) 
+      return; 
+    
+    // Only allow clicks for player 1 (current player's own game)
+    if (!isPlayer1) return;
+    
     if (clicked.includes(id)) {
       // save score before navigating
       saveScore(score, highScore);
@@ -115,6 +142,16 @@ export default function GameController({ playerName, socket }) {
       setScore(0);
       setClicked([]);
     } else {
+      const newScore = score + 1;
+      const newClicked = [...clicked, id];
+      const shuffledCards = [...image];
+      
+      // Shuffle cards
+      for (let i = shuffledCards.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [shuffledCards[i], shuffledCards[j]] = [shuffledCards[j], shuffledCards[i]];
+      }
+      
       setScore((prev) => {
         const newScore = prev + 1;
         if (newScore > highScore) {
@@ -123,15 +160,26 @@ export default function GameController({ playerName, socket }) {
         }
         return newScore;
       });
-      setClicked((prev) => [...prev, id]);
-      shuffleCards(image);
+      setClicked(newClicked);
+      setImage(shuffledCards);
+      
+      // Emit game state update to sync with other players
+      if (socket) {
+        socket.emit('game:stateUpdate', {
+          playerName,
+          cards: shuffledCards,
+          clickedCards: newClicked,
+          score: newScore
+        });
+      }
     }
   };
 
   return (
-    <>
-      <GameBoard cards={image} onCardsClick={handleClick} />
+    // AI helped me with this logic since i am using it for CSS and CSS only
+    <div className={`game-controller ${disabled ? 'inactive' : ''}`}>
+      <GameBoard cards={image} onCardsClick={handleClick} disabled={disabled} />
       <Score score={score} highScore={highScore} playerName={playerName} />
-    </>
+    </div>
   );
 }
