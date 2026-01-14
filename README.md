@@ -110,26 +110,6 @@ DELETE /scores/:playerName # Remove player score
 - `players:update` - Updated player list
 - `game:stateUpdate` - Other player's game state
 
-## Project Structure
-
-```
-├── src/
-│   ├── components/
-│   │   ├── GameBoard.jsx      # Card grid
-│   │   ├── GameController.jsx # Game logic
-│   │   ├── Multiplayer.jsx    # 2-player layout
-│   │   ├── ChatBox.jsx        # Real-time chat
-│   │   ├── PlayerList.jsx     # Active players
-│   │   └── Score.jsx          # Score display
-│   ├── pages/
-│   │   ├── Welcome.jsx        # Name entry
-│   │   ├── Game.jsx           # Main game
-│   │   └── GameOver.jsx       # Results screen
-│   └── App.jsx
-└── server/
-    └── server.js              # Express + Socket.io server
-```
-
 ## Things I'd Improve
 
 - Add proper authentication (currently anyone can use any name)
